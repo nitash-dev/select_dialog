@@ -13,9 +13,16 @@ class SelectOneBloc<T> {
   late Stream<List<T>?> _filteredListOnlineOut;
   late Stream<List<T>?> _filteredListOfflineOut;
   String get filterValue => _filter$.value ?? "";
+  String Function(T)? _searchValueFn;
 
-  SelectOneBloc(List<T>? items, Future<List<T>?> Function(String text)? onFind, TextEditingController? findController) {
+  SelectOneBloc(
+    List<T>? items,
+    Future<List<T>?> Function(String text)? onFind,
+    TextEditingController? findController,
+    String Function(T)? searchValueFn,
+  ) {
     this.findController = findController ?? TextEditingController();
+    _searchValueFn = searchValueFn;
     _list$ = BehaviorSubject.seeded(items);
 
     _filteredListOfflineOut = CombineLatestStream.combine2(_list$, _filter$, filter);
@@ -34,7 +41,7 @@ class SelectOneBloc<T> {
   }
 
   List<T>? filter(List<T>? list, String filter) {
-    return list?.where((item) => _filter$.value == null || item.toString().toLowerCase().contains(filterValue) || filterValue.isEmpty).toList();
+    return list?.where((item) => _filter$.value == null || _searchValueFn != null ? _searchValueFn!(item).contains(filterValue) : item.toString().toLowerCase().contains(filterValue) || filterValue.isEmpty).toList();
   }
 
   // bool isFiltered(T item, String filter)

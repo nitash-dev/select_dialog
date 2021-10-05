@@ -18,6 +18,7 @@ class SelectDialog<T> extends StatefulWidget {
   ///![image](https://user-images.githubusercontent.com/16373553/80187339-db365f00-85e5-11ea-81ad-df17d7e7034e.png)
   final bool showSearchBox;
   final void Function(T)? onChange;
+  final String Function(T)? searchValueFn;
   final void Function(List<T>)? onMultipleItemsChange;
   final Future<List<T>> Function(String text)? onFind;
   final SelectOneItemBuilderType<T>? itemBuilder;
@@ -59,6 +60,7 @@ class SelectDialog<T> extends StatefulWidget {
     this.searchBoxDecoration,
     this.searchHint,
     this.titleStyle,
+    this.searchValueFn,
     this.emptyBuilder,
     this.okButtonBuilder,
     this.errorBuilder,
@@ -80,6 +82,7 @@ class SelectDialog<T> extends StatefulWidget {
     bool showSearchBox = true,
     Future<List<T>> Function(String text)? onFind,
     SelectOneItemBuilderType<T>? itemBuilder,
+    String Function(T)? searchValueFn,
     void Function(T)? onChange,
     void Function(List<T>)? onMultipleItemsChange,
     InputDecoration? searchBoxDecoration,
@@ -112,6 +115,7 @@ class SelectDialog<T> extends StatefulWidget {
             onChange: onChange,
             onMultipleItemsChange: onMultipleItemsChange,
             onFind: onFind,
+            searchValueFn: searchValueFn,
             showSearchBox: showSearchBox,
             itemBuilder: itemBuilder,
             searchBoxDecoration: searchBoxDecoration,
@@ -141,6 +145,7 @@ class SelectDialog<T> extends StatefulWidget {
         multipleSelectedValues?.toList(),
         onFind,
         findController,
+        searchValueFn,
       );
 }
 
@@ -148,9 +153,18 @@ class _SelectDialogState<T> extends State<SelectDialog<T>> {
   late SelectOneBloc<T> bloc;
   late MultipleItemsBloc<T> multipleItemsBloc;
   void Function(T)? onChange;
+  String Function(T)? searchValueFn;
 
-  _SelectDialogState(List<T>? itemsList, this.onChange, void Function(List<T>)? onMultipleItemsChange, List<T>? multipleSelectedValues, Future<List<T>> Function(String text)? onFind, TextEditingController? findController) {
-    bloc = SelectOneBloc(itemsList, onFind, findController);
+  _SelectDialogState(
+    List<T>? itemsList,
+    this.onChange,
+    void Function(List<T>)? onMultipleItemsChange,
+    List<T>? multipleSelectedValues,
+    Future<List<T>> Function(String text)? onFind,
+    TextEditingController? findController,
+    String Function(T value)? searchValueFn,
+  ) {
+    bloc = SelectOneBloc(itemsList, onFind, findController, searchValueFn);
     multipleItemsBloc = MultipleItemsBloc(multipleSelectedValues, onMultipleItemsChange);
   }
 
